@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"log"
 	"math"
@@ -44,4 +46,24 @@ func main() {
 
 	balanceEther := new(big.Float).Quo(fbalance, big.NewFloat(math.Pow(10, 18)))
 	fmt.Println("balance in ethereum: ", balanceEther)
+
+	//Generating 3 parts of an Ethereum wallet:
+	//1.Generating private key
+	privateKey, err := crypto.GenerateKey()
+	if err != nil {
+		log.Fatalf("error generating crypto key %v", err)
+		return
+	}
+	privateKeyBytes := crypto.FromECDSA(privateKey) //private key in bytes
+	//encoding privateKeyBytes to string
+	privateKeyStrings := hexutil.Encode(privateKeyBytes)
+	fmt.Println("privateKeyStrings: ", privateKeyStrings)
+
+	//2. generating public key from private key
+	publicKeyBytes := crypto.FromECDSAPub(&privateKey.PublicKey)
+	publicKeyStrings := hexutil.Encode(publicKeyBytes)
+	fmt.Println("publicKeyStrings: ", publicKeyStrings)
+
+	//3. Getting public address from public key
+	fmt.Println("public address: ", crypto.PubkeyToAddress(privateKey.PublicKey))
 }
